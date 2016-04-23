@@ -126,11 +126,11 @@ def get_metadata(path_root):
 
 
 def get_pca(x, num_comp=20):
-        temp['class_num'] = class_map[temp['class']]
-        metadata.append(temp)
-        print 'Classes' + str(class_map)
-        return metadata, class_map
-
+    print '->Performing PCA'
+    pca = PCA(n_components=num_comp)
+    x_pca = pca.fit_transform(x)
+    #  draw_component_variance(pca.explained_variance_ratio_)
+    return x_pca
 
 def get_chords_pca(chords, use_avg=False):
     print 'Getting PCA for chords'
