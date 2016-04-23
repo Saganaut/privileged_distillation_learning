@@ -102,19 +102,19 @@ if __name__ == '__main__':
     d      = 50
     n_tr   = 200
     n_te   = 1000
-    n_reps = 1 
+    n_reps = 5
 
     np.random.seed(0)
     performance_mat = np.zeros((n_reps,3))
     xs, x, y = load_data()
     for rep in xrange(n_reps):
-        print '~~~~~~ Trial: ' + str(rep)
+        print '~~~~~~ Running Trial: ' + str(rep)
         a = np.random.randn(d)
         xs_tr, x_tr, y_tr, xs_te, x_te, y_te = split_data(xs, x, y) 
         performance_mat[rep,:] += do_exp(x_tr,xs_tr,y_tr,x_te,xs_te,y_te)
-    means = performance_mat.mean(axis=0).round(2)
-    stds  = performance_mat.std(axis=0).round(2)
-    print ' '+str(means[0])+'\pm'+str(stds[0])+\
-          ' '+str(means[1])+'\pm'+str(stds[1])+\
-          ' '+str(means[2])+'\pm'+str(stds[2])
+    means = performance_mat.mean(axis=0).round(4)
+    stds  = performance_mat.std(axis=0).round(4)
+    print 'Priv: '+str(means[0])+' +- '+str(stds[0])+\
+          '\nNorm: '+str(means[1])+' +- '+str(stds[1])+\
+          '\nDist: '+str(means[2])+' +- '+str(stds[2])
 

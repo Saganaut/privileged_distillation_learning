@@ -5,8 +5,6 @@ import scipy.io as sio
 from collections import defaultdict as dd
 from sklearn.decomposition import PCA
 
-
-
 def softmax(X, copy=True):
     """
     Calculate the softmax function.
@@ -75,6 +73,7 @@ def load_data(stats_files):
         n += 1
     return x
 
+
 def load_chords(chords_files):
     files = sorted(os.listdir(chords_files))
     c = 0
@@ -94,11 +93,11 @@ def load_chords(chords_files):
     return np.array(chords)
 
 
-
 def get_metadata(path_root):
     files = os.listdir(path_root)
     metadata = []
     class_map = {}
+
     subclass_map = {}
     c = 0
     d = 0
@@ -127,11 +126,11 @@ def get_metadata(path_root):
 
 
 def get_pca(x, num_comp=20):
-    print '->Performing PCA'
-    pca = PCA(n_components=num_comp)
-    x_pca = pca.fit_transform(x)
-    #  draw_component_variance(pca.explained_variance_ratio_)
-    return x_pca
+        temp['class_num'] = class_map[temp['class']]
+        metadata.append(temp)
+        print 'Classes' + str(class_map)
+        return metadata, class_map
+
 
 def get_chords_pca(chords, use_avg=False):
     print 'Getting PCA for chords'

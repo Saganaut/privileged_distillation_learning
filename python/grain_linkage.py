@@ -73,6 +73,24 @@ if __name__ == '__main__':
     run_classifiers(grain_pca[:, :num_grain_comp], input_params)
                     
     quit()
+
+
+if __name__ == '__main__':
+    path_root = '/home/david/Research/grain_to_grain/truncated/'
+    pca_root = '/home/david/Research/grain_to_grain/pca/'
+    metadata, class_map = get_metadata(path_root)
+    if os.path.isfile(pca_root+'grain_grain_pca_scores.npy'):
+        print 'PCA .npy found, loading.'
+        pca_scores = np.load(pca_root+'grain_grain_pca_scores.npy')
+    else:
+        x = load_data(path_root)
+        pca_scores = get_pca(x)
+        np.save(pca_root+'grain_grain_pca_scores.npy', pca_scores)
+
+    # show the pca plots
+    #plt.scatter(pca_scores[:, 0], pca_scores[:,1], alpha=0.85)
+    #plt.show()
+
     mesh_height = 0.02
     i = 1
     names = ["Nearest Neighbors", "Linear SVM", "RBF SVM", "Decision Tree",
