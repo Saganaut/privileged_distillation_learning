@@ -16,8 +16,63 @@ from sklearn.ensemble import RandomForestClassifier, AdaBoostClassifier
 from sklearn.naive_bayes import GaussianNB
 from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
 from sklearn.discriminant_analysis import QuadraticDiscriminantAnalysis
-from utils import load_data, get_pca, get_metadata
+from utils import load_data, get_pca, get_metadata, load_chords, get_chords_pca
 from pymks.tools import draw_component_variance
+from sklearn.cross_validation import cross_val_score
+from paths import stats_pca_path, cord_length_path, stats_files
+
+def run_classifiers(x, y, num_folds=5):
+    i = 1
+    names = ["Nearest Neighbors", "Linear SVM", "RBF SVM", "Decision Tree",
+             "Random Forest", "AdaBoost", "Naive Bayes",
+             "Linear Discriminant Analysis", "Quadratic Discriminant Analysis"]
+
+    classifiers = [
+        KNeighborsClassifier(3),
+        SVC(kernel="linear", C=0.025),
+        SVC(gamma=2, C=1),
+        DecisionTreeClassifier(max_depth=5),
+        RandomForestClassifier(max_depth=5, n_estimators=10, max_features=1),
+        AdaBoostClassifier(),
+        GaussianNB(),
+        LinearDiscriminantAnalysis(),
+        QuadraticDiscriminantAnalysis() ]
+
+    for name, clf in zip(names, classifiers):
+        scores = cross_val_score(clf, x, y, cv=num_folds)
+        print name + ': ' + str(np.mean(scores))
+
+
+if __name__ == '__main__':
+    num_grain_comp = 5
+    num_chord_comp = 5
+    num_folds = 5
+
+    metadata, class_map, subclass_map = get_metadata(stats_files())
+    if os.path.isfile(stats_pca_path()+'grain_grain_pca_scores.npy'):
+        print 'PCA .npy found, loading.'
+        grain_pca = np.load(stats_pca_path()+'grain_grain_pca_scores.npy')
+    else:
+        x = load_data(stats_files())
+        grain_pca = get_pca(x)
+        np.save(stats_pca_path()+'grain_grain_pca_scores.npy', grain_pca)
+
+    chords = load_chords(cord_length_path())
+    chords_pca = get_chords_pca(chords, use_avg=True) 
+    
+    # show the pca plots
+    #plt.scatter(grain_pca[:, 0], grain_pca[:,1], alpha=0.85)
+    #plt.show()
+
+    input_params = np.array([x['class_num'] for x in metadata])
+   
+    print '\n~~~~~~~~~~~~ Chord(PCA)->Class ~~~~~~~~~~~~'
+    run_classifiers(chords_pca[:, :num_chord_comp], input_params)
+
+    print '\n~~~~~~~~~~~~ Grain(PCA)->Class ~~~~~~~~~~~~'
+    run_classifiers(grain_pca[:, :num_grain_comp], input_params)
+                    
+    quit()
 
 
 if __name__ == '__main__':
@@ -61,7 +116,7 @@ if __name__ == '__main__':
     bounds = [-0.5, 0.5, 1.5, 2.5, 3.5, 4.5]
     norm = colors.BoundaryNorm(bounds, color_map.N)
     # preprocess dataset, split into training and test part
-    X = pca_scores[:, :5]
+    X = grain_pca[:, :5]
     print X.shape
     y = np.array([x['class_num'] for x in metadata])
     print y.shape
