@@ -1,7 +1,8 @@
 import numpy as np
 import os
 from sklearn.decomposition import PCA
-
+from scipy.ndimage import gaussian_filter1d
+from pymks.bases import PrimitiveBasis
 
 def softmax(X, copy=True):
     """
@@ -37,16 +38,11 @@ def softmax(X, copy=True):
     return X
 
 
-def get_filtered_count(files, filter_phrase):
-    n = 0
-    for fi in files:
-        if fi[-3:] != 'npy':
-            continue
-        tokens = fi.split('.')
-        if not (filter_phrase in tokens):
-            continue
-        n += 1
-    return n
+def continuous_softmax(y_dist, T):
+    print 'gaussian_filter1d y', y_dist.shape
+    tmp = gaussian_filter1d(y_dist, T)
+    print 'tmp', tmp.shape
+    return tmp
 
 
 def load_data(stats_files):
@@ -70,6 +66,16 @@ def load_data(stats_files):
         x[n, :] = temp.flatten()
         n += 1
     return x
+
+
+def property2distribution(y, domain, dx):
+    n_bins = int((domain[1] - domain[0] + dx) / dx)
+    p_basis = PrimitiveBasis(n_states=n_bins, domain=domain)
+    return p_basis.discretize(y)[:, 0, :]
+
+
+
+# def distribution2property(y)
 
 
 def get_metadata(path_root):
